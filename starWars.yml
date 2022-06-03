@@ -1,19 +1,3 @@
-version: "1"
-# These build-time secrets come from vela org secrets: https://vela.cglcloud.in/-/secrets/native/org/BrandedFeedScheduler
-secrets:
-  - name: DEV_SF_TOKEN
-    key: BrandedFeedScheduler/dev_sf_token
-    engine: native
-    type: org
-  - name: DEV_SF_PASS
-    key: BrandedFeedScheduler/dev_sf_pass
-    engine: native
-    type: org
-  - name: DEV_SF_USER
-    key: BrandedFeedScheduler/dev_sf_user
-    engine: native
-    type: org
-
 stages:
   cortx-server:
     steps:

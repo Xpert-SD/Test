@@ -1,1 +1,54 @@
-Hello there general kenobi!
+version: "1"
+# These build-time secrets come from vela org secrets: https://vela.cglcloud.in/-/secrets/native/org/BrandedFeedScheduler
+secrets:
+  - name: DEV_SF_TOKEN
+    key: BrandedFeedScheduler/dev_sf_token
+    engine: native
+    type: org
+  - name: DEV_SF_PASS
+    key: BrandedFeedScheduler/dev_sf_pass
+    engine: native
+    type: org
+  - name: DEV_SF_USER
+    key: BrandedFeedScheduler/dev_sf_user
+    engine: native
+    type: org
+
+stages:
+  cortx-server:
+    steps:
+      - name: cortx-sf-server-deploy
+        image: docker-utilities.binrepo.cglcloud.in/captain:1-stable
+        ruleset:
+          if:
+            branch: [dev]
+            event: [push]
+        parameters:
+          captain_file: .captain.cortx-sf-server.yml
+          env: dev
+          run_apply: true
+          version: 1.12.2-freightpayables.2
+  cortx-sf-components:
+    steps:
+      - name: cortx-sf-components-deploy
+        image: docker.binrepo.cglcloud.in/cortx-sf-components:1.12.1-freightpayables.1
+        ruleset:
+          if:
+            branch: [dev]
+            event: [push]
+        secrets:
+          - source: DEV_SF_TOKEN
+            target: DEV_SF_TOKEN
+          - source: DEV_SF_PASS
+            target: DEV_SF_PASS
+          - source: DEV_SF_USER
+            target: DEV_SF_USER
+        commands:
+          - export SF_URL="https://cargill4--dev.my.salesforce.com/"
+          - export SF_TOKEN=$DEV_SF_TOKEN
+          - export SF_USER=$DEV_SF_USER
+          - export SF_PASS=$DEV_SF_PASS
+          - export CORTX_SERVER_URL="https://cortxsfserver-dev.dev.cglcloud.in"
+          - export COLLATE_BASE_URL="https://brandedfeeddaxcollate-dev.dev.cglcloud.in"
+          - yarn run build
+          - yarn run push
